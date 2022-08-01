@@ -1,0 +1,27 @@
+/**
+ * Mengirim data non duplikat menggunakan google sheets
+ * Data disajikan dalam sebuah google sheet dengan 3 kolom utama, kolom 1 sebagai alamat email, kolom 2 sebagai isi dari pesan yang akan dikirim,
+ * kolom 3 sebagai penanda bahwa baris telah terproses
+ */
+function sendEmail() {
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var startRow = 2; // Baris pertama data yang akan diproses
+  var numRows = 10; // Jumlah baris yang akan di proses
+  // Mengambil data dari A2:B3
+  var dataRange = sheet.getRange(startRow, 1, numRows, 3);
+  // Mengambil data dari setiap baris
+  var data = dataRange.getValues();
+  
+  for (var i = 0; i < data.length; ++i) {
+    var row = data[i];
+    var emailAddress = row[0]; // kolom pertama
+    var message = row[1]; // kolom kedua
+    var emailSent = row[2]; // kolom ketiga
+    if (emailSent !== EMAIL_SENT) { // Mencegah pengiriman email duplikat
+      var subject = 'Subscription Code'; //subjek email
+      MailApp.sendEmail(emailAddress, subject, message);
+      sheet.getRange(startRow + i, 3).setValue(EMAIL_SENT);
+      SpreadsheetApp.flush();
+    }
+  }
+}
